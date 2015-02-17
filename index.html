@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+ 	  <script type='text/javascript' src='./angular.js'></script>
+	 
+	  <script type='text/javascript' src="http://ckeditor.com/apps/ckeditor/4.2.1/ckeditor.js"></script>
+	  <script type='text/javascript' src="./app.js"></script>
+	  <link rel="stylesheet" type="text/css" href="app.css">
+</head>
+<body>
+   <div ng-app="myApp">
+	<div ng-controller="myCtrl">
+		
+			<button ng-click="setTemplate(0)">template0</button>
+			<button ng-click="setTemplate(1)">template1</button>
+			<button ng-click="createSection(1)">create new section</button>
+			<a class="dragsource" dragsource="section"><div>Drag me!</div></a>
+			<a class="dragsource" dragsource="img"><img src="logo.png" style="width:100%;height:100%;"></img></a>
+			
+			
+			<div id="top"></div>
+			<div class="ckeditor"></div>
+		
+	</div>
+</div>
+</body>
+</html>

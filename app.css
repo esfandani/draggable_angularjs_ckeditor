@@ -1,0 +1,41 @@
+ [contenteditable="true"]:hover{
+    border:blue 1px solid ;
+}
+[contenteditable="false"]:hover{
+    border:blue 1px dashed;
+}
+[contenteditable]{
+    border:white 1px solid;
+}
+
+.drag{
+    opacity:0.5;
+    background:red;
+}
+.dragsource{
+    height:20px;
+    width:200px;
+    border:blue 1px solid;
+    display:block;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+}
+.dragsinkk{
+    height:10px;
+    width:100%;
+    border:blue 1px solid;
+    padding:2px;
+   
+}
+.dragsink{
+   
+}
+.over{
+    border:blue 3px solid;
+    padding:1px;
+}
