@@ -1,56 +1,53 @@
-function uuid() {
-    function _r8(s) {
-        var r = (Math.random().toString(16)+"000000000").substr(2,8);
-        return s ? r.substr(0,4) + r.substr(4,4) : r ;
-    }
-    return 'e'+_r8() + _r8(true) + _r8(true) + _r8();
-}
 
-function append_jQlite_dom(elm,app_elm,order){
-    
-    if(order!==undefined){
-        app_elm.attr('order',order);
-       // app_elm.attr('drop','newSection('+order+')');
-        app_elm.attr('drop','newSection');
-    }
-    elm.append(app_elm);
-}
-function _hasClass(el,className){
-    var elClass = ' '+el.className+' ';
-    return (elClass.indexOf(' '+className+' ') != -1); 
-}
-function __addClass(el, className){
-    if(!_hasClass(el,className)){
-        el.className += (' '+className);       
-    }
-    
-}
-
-
-function __removeClass(el,className){
-    var elClass = ' '+el.className+' ';
-    while(elClass.indexOf(' '+className+' ') != -1)
-         elClass = elClass.replace(' '+className+' ', '');
-    el.className = elClass;
-}
-function __addDeleteBulkClass(selector, className,isDelete){
-    angular.forEach(angular.element(document.querySelectorAll(selector)), function(el, key){ 
-            if(isDelete){
-                __removeClass(el,className);
-            }else{
-                 __addClass(el,className);
-            }
-    });
-}
 
 /**
-* myApp Module
+* ckeApp Module
 *
 * Description
 */
-var myApp = angular.module('myApp', []);
+var ckeApp = angular.module('ckeApp', []);
 
-myApp.directive('ckeditor', function($compile){
+ckeApp.factory('utils',function(){
+	var factory = {};
+	factory.uuid = function(){
+		function _r8(s) {
+       		 var r = (Math.random().toString(16)+"000000000").substr(2,8);
+       		 return s ? r.substr(0,4) + r.substr(4,4) : r ;
+    	}
+    	return 'e'+_r8() + _r8(true) + _r8(true) + _r8();
+	}
+	factory._hasClass = function(el,className){
+	    var elClass = ' '+el.className+' ';
+	    return (elClass.indexOf(' '+className+' ') != -1); 
+	}
+	factory.__addClass = function(el, className){
+	    if(!factory._hasClass(el,className)){
+	        el.className += (' '+className);       
+	    }
+	    
+	}
+
+	factory.__removeClass = function(el,className){
+	    var elClass = ' '+el.className+' ';
+	    while(elClass.indexOf(' '+className+' ') != -1)
+	         elClass = elClass.replace(' '+className+' ', '');
+	    el.className = elClass;
+	}
+	factory.__addDeleteBulkClass =  function(selector, className,isDelete){
+	    angular.forEach(angular.element(document.querySelectorAll(selector)), function(el, key){ 
+	            if(isDelete){
+	                factory.__removeClass(el,className);
+	            }else{
+	                 factory.__addClass(el,className);
+	            }
+	    });
+	}
+
+
+
+	return factory;
+});
+ckeApp.directive('ckeditor',['$compile',function($compile){
     // Runs during compile
     return {
         // name: '',
@@ -78,6 +75,15 @@ myApp.directive('ckeditor', function($compile){
             var templates_fun = function(){
                 return scope.template;
             };
+            var append_jQlite_dom = function(elm,app_elm,order){
+    
+			    if(order!==undefined){
+			        app_elm.attr('order',order);
+			       // app_elm.attr('drop','newSection('+order+')');
+			        app_elm.attr('drop','newSection');
+			    }
+			    elm.append(app_elm);
+			}
 
             scope.$watch(templates_fun, function(template) {
 
@@ -104,12 +110,10 @@ myApp.directive('ckeditor', function($compile){
                       //inline.focuse();
                        ck.instances[default_editor].setData("<span></span>");
                 }else{
-
                     ck.instances[default_editor].focus();
                 }
                 for(var ins in ck.instances){
                     if((typeof(ins) !='undefined' ) && ck.instances[ins].name!=default_editor){
-                        //console.log(ck.instances[ins].getData());
                         ck.instances[ins].setData();
                         ck.instances[ins].destroy(true);
                     }
@@ -145,10 +149,10 @@ myApp.directive('ckeditor', function($compile){
            
         }
     };
-});
+}]);
 
 
-myApp.directive('dragsource', [ function(){
+ckeApp.directive('dragsource', ['utils', function(utils){
     // Runs during compile
     return {
         // name: '',
@@ -170,7 +174,6 @@ myApp.directive('dragsource', [ function(){
             el.addEventListener(
                 'dragstart',
                 function(e) {
-                    console.log('drag start');
                     e.dataTransfer.effectAllowed = 'move';
                     var source = el.getAttribute('dragsource');
                     var data = source+'$$$';
@@ -178,8 +181,8 @@ myApp.directive('dragsource', [ function(){
                         data+=angular.element(this).children().eq(0).attr('src');
                     }
                     e.dataTransfer.setData('text',data);
-                    __addClass(el,'drag');
-                    __addDeleteBulkClass('.dragsink','dragsinkk');
+                    utils.__addClass(el,'drag');
+                    utils.__addDeleteBulkClass('.dragsink','dragsinkk');
                     return false;
                 },
                 false
@@ -189,9 +192,8 @@ myApp.directive('dragsource', [ function(){
                 'dragend',
                 function(e) {
                     if (e.preventDefault) e.preventDefault();
-                    console.log('drag end');
-                    __removeClass(el,'drag');
-                    __addDeleteBulkClass('.dragsink','dragsinkk',true);
+                    utils.__removeClass(el,'drag');
+                    utils.__addDeleteBulkClass('.dragsink','dragsinkk',true);
                     return false;
                 },
                 false
@@ -203,7 +205,7 @@ myApp.directive('dragsource', [ function(){
 }]);
 
 
-myApp.directive('dragsink', function() {
+ckeApp.directive('dragsink',['utils', function(utils) {
     return {
         scope: {
             drop:"&",
@@ -213,10 +215,9 @@ myApp.directive('dragsink', function() {
             el.addEventListener(   
                 'dragover', 
                 function(e) {
-                    console.log('dragover');
                     e.dataTransfer.dropEffect = 'move';
                     if (e.preventDefault) e.preventDefault();
-                    __addClass(el,'over');
+                    utils.__addClass(el,'over');
                     return false;
                 },
                 false
@@ -224,8 +225,7 @@ myApp.directive('dragsink', function() {
             el.addEventListener(
                 'dragenter',
                 function(e) {
-                    console.log('dragenter');
-                    __addClass(el,'over');
+                    utils.__addClass(el,'over');
                     return false;
                 },
                 false
@@ -234,8 +234,7 @@ myApp.directive('dragsink', function() {
             el.addEventListener(
                 'dragleave',
                 function(e) {
-                    console.log('leave');
-                    __removeClass(el,'over');
+                    utils.__removeClass(el,'over');
                     return false;
                 },
                 false
@@ -243,13 +242,11 @@ myApp.directive('dragsink', function() {
             el.addEventListener(
                 'drop',
                 function(e) {
-                    console.log('drop');
-                     if (e.preventDefault) e.preventDefault();
+                    if (e.preventDefault) e.preventDefault();
                     if (e.stopPropagation) e.stopPropagation();
                     
                     var source = e.dataTransfer.getData("text");
-                    console.log(source);
-                    __removeClass(el,'over');
+                    utils.__removeClass(el,'over');
                     var orderId = el.getAttribute('order');
                     var func = scope.drop();
                     if(typeof func !== 'undefined'){
@@ -263,17 +260,15 @@ myApp.directive('dragsink', function() {
            
         }
     };
-});
+}]);
 
-
-
-var myCtrl = function ($scope) {
-    templates = [{'id':uuid(),'sections': [
-    {'id':uuid(),'edit':'true','data':'<h3>Editable section<h3'},
-    {'id':uuid(),'edit':'false','data':'<h3>NonEditable section<h3>'},
-    ]},{'id':uuid(),'sections': [
-    {'id':uuid(),'edit':'true','data':'<h3>Second template Editable section<h3>'},
-    {'id':uuid(),'edit':'false','data':'<h3>Second template NonEditable section<h3>'},
+ckeApp.controller('ckeCtrl',['$scope','utils', function($scope,utils){
+	templates = [{'id':utils.uuid(),'sections': [
+    {'id':utils.uuid(),'edit':'true','data':'<h3>Editable section<h3'},
+    {'id':utils.uuid(),'edit':'false','data':'<h3>NonEditable section<h3>'},
+    ]},{'id':utils.uuid(),'sections': [
+    {'id':utils.uuid(),'edit':'true','data':'<h3>Second template Editable section<h3>'},
+    {'id':utils.uuid(),'edit':'false','data':'<h3>Second template NonEditable section<h3>'},
     ]}];
 
     for(var i =0;i<templates.length;i++){
@@ -284,15 +279,13 @@ var myCtrl = function ($scope) {
         }
     }
     $scope.template = templates[0];
-    $scope.drag = false;
-
-
+  
     $scope.setTemplate = function(num) {
         $scope.template = templates[num];
     };
     
     $scope.createSection = function(pos){
-        var id = uuid();
+        var id = utils.uuid();
         var section = {'id':id,'edit':'true','data':'<h3>'+id+'</h3>'};
         section.dup_data = section.data;
         if(pos >= 0 && pos < $scope.template.sections.length ){
@@ -300,7 +293,7 @@ var myCtrl = function ($scope) {
         }
     };
     $scope.newSection = function(source, pos){
-        var id = uuid();
+        var id = utils.uuid();
         var split = source.split('$$$');
         var section;
         if(split[0]=='section'){
@@ -316,8 +309,6 @@ var myCtrl = function ($scope) {
         }  
 
     };
-   
 
-    
-    
-};
+}]);
+
